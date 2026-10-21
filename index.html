@@ -290,7 +290,7 @@ function serviceCard(s,i){return `<article class="service-card">
   <div class="service-card-actions"><a class="text-link" data-link="/puja-services/${s.slug}">View Details →</a><a class="btn-small" data-link="/contact?puja=${s.slug}">Book Now</a></div></div></article>`;}
 
 function panchangStrip(){
- const cells=[['Tithi','Shukla Panchami'],['Nakshatra','Rohini'],['Yoga','Siddhi'],['Rahu Kaal','4:30 – 6:00 PM'],['Abhijit Muhurat','11:48 AM – 12:35 PM']];
+ const cells=[['Tithi','Dashami'],['Nakshatra','Dhanishta'],['Yoga','Ganda'],['Rahu Kaal','12:05 – 01:29 PM'],['Amrit Kaal','08:37 – 10:20 AM']];
  return `<section class="panchang"><div class="wrap panchang-inner">
    <div class="panchang-head"><strong>Today's Panchang</strong><span class="ptag">Sample preview</span></div>
    <div class="panchang-items">${cells.map(([k,v])=>`<div class="pcell"><span>${esc(k)}</span><strong>${esc(v)}</strong></div>`).join('')}</div>
@@ -300,8 +300,8 @@ async function hydratePanchang(){
  try{
   const r=await fetch('/api/panchang',{cache:'no-store'});
   if(!r.ok) return; const d=await r.json(); if(!d||d.error) return;
-  const map={'Tithi':d.tithi,'Nakshatra':d.nakshatra,'Yoga':d.yoga,'Rahu Kaal':d.rahu,'Abhijit Muhurat':d.abhijit};
-  document.querySelectorAll('.panchang .pcell').forEach(c=>{const k=c.querySelector('span').textContent.trim();const v=map[k];if(v&&String(v).trim())c.querySelector('strong').textContent=v;});
+  const map={'Tithi':d.tithi,'Nakshatra':d.nakshatra,'Yoga':d.yoga,'Rahu Kaal':d.rahu,'Amrit Kaal':d.amrit};
+  document.querySelectorAll('.panchang .pcell').forEach(c=>{const k=c.querySelector('span').textContent.trim();if(k in map){const v=map[k];c.querySelector('strong').textContent=(v&&String(v).trim())?v:'—';}});
   const tag=document.querySelector('.panchang .ptag'); if(tag)tag.textContent='Live · Delhi/NCR';
   const note=document.querySelector('.panchang .panchang-note'); if(note)note.innerHTML='Live Panchang for Delhi/NCR, updated daily via ProKerala'+(d.date?(' · '+esc(d.date)):'')+'.';
  }catch(_){}
