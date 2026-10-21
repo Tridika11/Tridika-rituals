@@ -1,8 +1,9 @@
+javascript
 // Tridika Rituals — Panchang proxy (Vercel serverless function)
 // Holds the ProKerala credentials server-side (never exposed to the browser),
 // fetches today's Panchang for Delhi/NCR once per day and returns clean JSON.
 //
-// Required environment variables (set these in Vercel → Project → Settings → Environment Variables):
+// Required environment variables (set in Vercel → Project → Settings → Environment Variables):
 //   PROKERALA_CLIENT_ID      your ProKerala Client ID
 //   PROKERALA_CLIENT_SECRET  your ProKerala Client Secret
 // Optional:
@@ -59,7 +60,7 @@ function fmtTime(s) {
   try {
     return new Intl.DateTimeFormat("en-IN", {
       timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true,
-    }).format(new Date(s));
+    }).format(new Date(s)).replace(/\b(am|pm)\b/gi, (m) => m.toUpperCase());
   } catch (_) { return s || ""; }
 }
 function first(a) { return Array.isArray(a) && a.length ? a[0] : (a || null); }
@@ -100,14 +101,20 @@ module.exports = async (req, res) => {
     const d = raw.data || raw;
     const inaus = d.inauspicious_period || d.inauspicious_periods || d.inauspicious || [];
     const aus = d.auspicious_period || d.auspicious_periods || d.auspicious || [];
+    const t0 = first(d.tithi);
     const out = {
       date: today,
       vaara: d.vaara || d.day || "",
-      tithi: nm(first(d.tithi)),
+      paksha: (t0 && t0.paksha) || "",
+      tithi: nm(t0),
       nakshatra: nm(first(d.nakshatra)),
       yoga: nm(first(d.yoga)),
       karana: nm(first(d.karana)),
       rahu: pick(inaus, "Rahu"),
+      yamaganda: pick(inaus, "Yamaganda"),
+      gulika: pick(inaus, "Gulika"),
+      amrit: pick(aus, "Amrit"),
+      brahma: pick(aus, "Brahma"),
       abhijit: pick(aus, "Abhijit"),
     };
     dayCache = { date: today, data: out };
